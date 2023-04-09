@@ -43,6 +43,7 @@ public class Program
 
         .ConfigureServices((hostingContext, services) =>
         {
+            services.AddProcessing(hostingContext.Configuration); // for MI
             services.Collectio(hostingContext.Configuration);
             services.Forward(hostingContext.Configuration);
             services.AddHostedService<Worker>();

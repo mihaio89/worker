@@ -27,13 +27,26 @@ public class Program
             builder.Sources.Clear();
             builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
+            
             if (environment.Equals("Development"))
             {
                 builder.AddUserSecrets<Program>();
             }
+
             if (environment.Equals("Staging") || environment.Equals("Production"))
             {
-                builder.AddAzureKeyVault(new Uri(builder.Build()["KeyVault"]), new DefaultAzureCredential(false));
+                var builtConfig = builder.Build();
+                var options = new DefaultAzureCredentialOptions()
+                {
+                    ManagedIdentityClientId = builtConfig["<id>"],
+                    ExcludeVisualStudioCodeCredential = false,
+                    ExcludeVisualStudioCredential = false,
+                    ExcludeAzureCliCredential = true,
+                    ExcludeEnvironmentCredential = true,
+                    ExcludeSharedTokenCacheCredential = true,
+                    ExcludeInteractiveBrowserCredential = true
+                };
+                builder.AddAzureKeyVault(new Uri(builder.Build()["KeyVault"]), new DefaultAzureCredential(options));
             }
 
             //  builder.AddEnvironmentVariables();
